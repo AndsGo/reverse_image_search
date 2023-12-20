@@ -7,3 +7,4 @@ matplotlib
 pillow
 numpy
 gdown
+rembg
