@@ -1,5 +1,12 @@
 import towhee
+import os
+import timm
+import torch
+from PIL import Image as PILImage
 
+from timm.data.transforms_factory import create_transform
+from timm.data import resolve_data_config
+from timm.models.factory import create_model
 
 class Resnet50:
     """
@@ -9,11 +16,21 @@ class Resnet50:
         args_0 (`type`):
         ...
     """
+    def __init__(self):
+        # model init
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.model = create_model("resnet50", pretrained=True, num_classes=1000)
+        self.model.to(device)
+        self.model.eval()
+        config = resolve_data_config({}, model=self.model)
+        self.tfms = create_transform(**config)
 
     def resnet50_extract_feat(self, img_path):
-        feat = towhee.glob(img_path) \
-                     .image_decode() \
-                     .image_embedding.timm(model_name='resnet50') \
-                     .tensor_normalize() \
-                     .to_list()
-        return feat[0]
+        read_image = PILImage.open(img_path)
+        inputs = torch.stack([self.tfms(read_image)])
+        features = self.model.forward_features(inputs)
+        global_pool = torch.nn.AdaptiveAvgPool2d(1)
+        features = global_pool(features)
+        features = features.flatten(1)
+        os.remove(img_path)
+        return features.squeeze(0).detach().numpy()

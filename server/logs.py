@@ -3,7 +3,6 @@ import re
 import datetime
 import logging
 import sys
-from config import LOGS_NUM
 
 try:
     import codecs
@@ -105,7 +104,7 @@ class MultiprocessHandler(logging.FileHandler):
 
 def write_log():
     logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.WARNING)
     # formatter = '%(asctime)s ｜ %(levelname)s ｜ %(filename)s ｜ %(funcName)s ｜ %(module)s ｜ %(lineno)s ｜ %(message)s'
     fmt = logging.Formatter(
         '%(asctime)s ｜ %(levelname)s ｜ %(filename)s ｜ %(funcName)s ｜ %(lineno)s ｜ %(message)s')
@@ -115,7 +114,7 @@ def write_log():
     stream_handler.setFormatter(fmt)
 
     log_name = "milvus"
-    file_handler = MultiprocessHandler(log_name, when='D', backupCount=LOGS_NUM)
+    file_handler = MultiprocessHandler(log_name, when='D', backupCount=30)
     file_handler.setLevel(logging.INFO)
     file_handler.setFormatter(fmt)
     file_handler.doChangeFile()
