@@ -74,6 +74,7 @@ async def upload_images(imagesModel: UploadImagesModel):
     # Insert the upload image to Milvus/MySQL
     if not MILVUS_CLI.has_collection(imagesModel.table):
         return {'code': 10100, 'message': 'table does not exist, please call "/milvus/img/table" first'}
+    img_path = None
     try:
         # Save the upload image to server.
         img_path = image_util.down_image(imagesModel.image, imagesModel.url, UPLOAD_PATH)
@@ -84,6 +85,12 @@ async def upload_images(imagesModel: UploadImagesModel):
     except Exception as e:
         LOGGER.error(e)
         return {'code': 10100, 'message': str(e)}
+    finally:
+        if img_path and os.path.exists(img_path):
+            os.remove(img_path)
+        orig_path = img_path[:-2] if img_path and img_path.endswith('_r') else None
+        if orig_path and os.path.exists(orig_path):
+            os.remove(orig_path)
 
 
 @app.post('/milvus/img/update')
@@ -91,6 +98,7 @@ async def update_images(imagesModel: UploadImagesModel):
     # Insert the upload image to Milvus/MySQL
     if not MILVUS_CLI.has_collection(imagesModel.table):
         return {'code': 10100, 'message': 'table does not exist, please call "/milvus/img/table" first'}
+    img_path = None
     try:
         # Save the upload image to server.
         if imagesModel.id is None:
@@ -104,6 +112,12 @@ async def update_images(imagesModel: UploadImagesModel):
     except Exception as e:
         LOGGER.error(e)
         return {'code': 10100, 'message': str(e)}
+    finally:
+        if img_path and os.path.exists(img_path):
+            os.remove(img_path)
+        orig_path = img_path[:-2] if img_path and img_path.endswith('_r') else None
+        if orig_path and os.path.exists(orig_path):
+            os.remove(orig_path)
 
 
 @app.post('/milvus/img/delete')
@@ -136,6 +150,7 @@ async def search_images(item: SearchItem):
     # Search the upload image in Milvus/MySQL
     if not MILVUS_CLI.has_collection(item.table):
         return {'code': 10100, 'message': 'table does not exist, please call "/milvus/img/table" first'}
+    img_path = None
     try:
         # Save the upload image to server.
         img_path = image_util.down_image(item.image, item.url, UPLOAD_PATH)
@@ -146,6 +161,12 @@ async def search_images(item: SearchItem):
     except Exception as e:
         LOGGER.error(e)
         return {'code': 10100, 'message': str(e)}
+    finally:
+        if img_path and os.path.exists(img_path):
+            os.remove(img_path)
+        orig_path = img_path[:-2] if img_path and img_path.endswith('_r') else None
+        if orig_path and os.path.exists(orig_path):
+            os.remove(orig_path)
 
 
 @app.get('/milvus/img/count')
